@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>ChordShift - Guitarra ↔ Ukulele</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ2hvcmRTaGlmdCIsInNob3J0X25hbWUiOiJDaG9yZFNoaWZ0Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxYTFhMmUiLCJ0aGVtZV9jb2xvciI6IiMxYTFhMmUiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyUzRSUzQ3JlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PScyNCcgZmlsbD0nIzFhMWEyZScvJTNFJTNDdGV4dCB4PSc5NicgeT0nMTEwJyBmb250LXNpemU9JzcwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZSclM0UlMjYjMTI3OTI2OyUzQy90ZXh0JTNFJTNDL3N2ZyUzRQ==","zaXplc":"MTkyeDE5MiJ9XX0=">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0f0f23;
+            --surface: #1a1a2e;
+            --surface-light: #252540;
+            --primary: #e94560;
+            --primary-light: #ff6b6b;
+            --accent: #0f3460;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --text-dim: #666;
+            --success: #4ecca3;
+            --warning: #ffc107;
+            --fret: #d4a574;
+            --string: #c0c0c0;
+            --finger: #e94560;
+            --nut: #f5e6d3;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* HEADER */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--surface);
+            border-bottom: 1px solid var(--surface-light);
+            padding: 12px 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span { font-weight: 300; opacity: 0.7; }
+
+        /* INSTRUMENT TOGGLE */
+        .instrument-toggle {
+            display: flex;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 3px;
+            gap: 3px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .instrument-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .instrument-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 12px rgba(233, 69, 96, 0.3);
+        }
+
+        .instrument-btn svg { width: 18px; height: 18px; }
+
+        /* CONTROLS BAR */
+        .controls-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg);
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .control-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            background: var(--surface-light);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-icon:hover { background: var(--primary); transform: scale(1.05); }
+        .btn-icon:active { transform: scale(0.95); }
+        .btn-icon.active { background: var(--success); color: var(--bg); }
+
+        /* SLIDER */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--surface-light);
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .speed-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .speed-value {
+            font-size: 0.8rem;
+            color: var(--primary-light);
+            font-weight: 700;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* TRANSPOSE */
+        .transpose-display {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--warning);
+            min-width: 36px;
+            text-align: center;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* INPUT SECTION */
+        .input-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .paste-area {
+            width: 100%;
+            min-height: 120px;
+            background: var(--bg);
+            border: 2px dashed var(--surface-light);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .paste-area:focus { border-color: var(--primary); }
+        .paste-area::placeholder { color: var(--text-dim); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233, 69, 96, 0.3); }
+        .btn-primary:active { transform: translateY(0); }
+
+        /* SONG LIST */
+        .songs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .song-card {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--surface-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .song-card:hover { border-color: var(--primary); transform: translateX(4px); }
+
+        .song-info h3 { font-size: 1rem; margin-bottom: 4px; }
+        .song-info p { font-size: 0.8rem; color: var(--text-muted); }
+
+        .song-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .song-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .song-actions button:hover { background: var(--surface-light); color: var(--primary); }
+
+        /* SHEET DISPLAY - EPUB FLUID LAYOUT */
+        .sheet-container {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 24px 20px;
+            border: 1px solid var(--surface-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--surface-light);
+        }
+
+        .sheet-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .sheet-artist {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .sheet-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-tag.instrument-guitar { background: #2d4a3e; color: #4ecca3; }
+        .meta-tag.instrument-ukulele { background: #3d2d4a; color: #c39bd3; }
+        .meta-tag.transpose { background: #4a3d2d; color: #ffc107; }
+
+        /* EPUB REFLOWABLE TEXT */
+        .sheet-content {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            line-height: 2.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .lyric-line {
+            position: relative;
+            margin-bottom: 0.3em;
+            min-height: 2.8em;
+            word-break: break-word;
+        }
+
+        .chord-inline {
+            display: inline;
+            position: relative;
+            color: var(--primary-light);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0 2px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-decoration: underline;
+            text-decoration-color: var(--primary);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 3px;
+        }
+
+        .chord-inline:hover {
+            background: rgba(233, 69, 96, 0.15);
+            color: var(--primary);
+        }
+
+        .lyric-text {
+            color: var(--text);
+        }
+
+        /* CHORD DIAGRAM POPUP */
+        .chord-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--surface-light);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 90vw;
+            width: 320px;
+        }
+
+        .chord-popup.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(4px);
+        }
+
+        .popup-overlay.active { opacity: 1; pointer-events: all; }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .popup-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .popup-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: var(--surface-light);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .popup-close:hover { background: var(--primary); }
+
+        /* FRETBOARD SVG */
+        .fretboard-container {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .fretboard-svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .popup-notes {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+        .empty-state p { font-size: 0.9rem; max-width: 300px; margin: 0 auto; }
+
+        /* SCROLLING INDICATOR */
+        .scroll-indicator {
+            position: fixed;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 100px;
+            background: var(--surface-light);
+            border-radius: 2px;
+            z-index: 500;
+            overflow: hidden;
+        }
+
+        .scroll-progress {
+            width: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: height 0.1s;
+        }
+
+        /* HIDE UI MODE */
+        body.clean-mode .header,
+        body.clean-mode .input-section,
+        body.clean-mode .songs-list,
+        body.clean-mode .scroll-indicator {
+            display: none !important;
+        }
+
+        body.clean-mode .main-content { padding: 20px 16px; }
+        body.clean-mode .sheet-container { border: none; background: transparent; }
+
+        /* FLOATING CLEAN MODE BUTTON */
+        .fab-clean {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+            z-index: 900;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-clean:hover { transform: scale(1.1); }
+        .fab-clean.hidden { opacity: 0; pointer-events: none; }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .header-top { flex-wrap: wrap; }
+            .logo { font-size: 1.1rem; }
+            .controls-bar { justify-content: center; }
+            .sheet-content { font-size: 0.9rem; line-height: 2.2; }
+            .lyric-line { min-height: 2.4em; }
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in { animation: fadeIn 0.4s ease forwards; }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--surface-light); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">Chord<span>Shift</span></div>
+            <div class="instrument-toggle">
+                <button class="instrument-btn active" data-instrument="guitar" onclick="setInstrument('guitar')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Guitarra
+                </button>
+                <button class="instrument-btn" data-instrument="ukulele" onclick="setInstrument('ukulele')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                    Ukulele
+                </button>
+            </div>
+        </div>
+        <div class="controls-bar">
+            <div class="control-group">
+                <span class="control-label">Auto-Scroll</span>
+                <button class="btn-icon" id="playBtn" onclick="toggleAutoscroll()">▶</button>
+                <button class="btn-icon" onclick="resetScroll()">⏮</button>
+            </div>
+            <div class="control-group slider-container">
+                <span class="control-label">Velocidad</span>
+                <input type="range" class="speed-slider" id="speedSlider" min="1" max="100" value="30" oninput="updateSpeed(this.value)">
+                <span class="speed-value" id="speedValue">30%</span>
+            </div>
+            <div class="control-group">
+                <span class="control-label">Tono</span>
+                <button class="btn-icon" onclick="transpose(-1)">-</button>
+                <span class="transpose-display" id="transposeDisplay">0</span>
+                <button class="btn-icon" onclick="transpose(1)">+</button>
+            </div>
+            <div class="control-group">
+                <button class="btn-icon" onclick="toggleCleanMode()" title="Modo limpio">👁</button>
+                <button class="btn-icon" onclick="showFavorites()" title="Favoritos">⭐</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- INPUT SECTION -->
+        <div class="input-section" id="inputSection">
+            <div class="section-title">
+                <span>📋</span> Pega tu partitura de LaCuerda.net
+            </div>
+            <textarea class="paste-area" id="pasteArea" placeholder="Copia y pega aquí la partitura de lacuerda.net...&#10;&#10;Ejemplo:&#10;        Am         G&#10;En el muelle de San Blas&#10;        F          C&#10;esperando te quedaste..."></textarea>
+            <button class="btn-primary" onclick="processSheet()">
+                <span>🎵</span> Procesar Partitura
+            </button>
+        </div>
+
+        <!-- SONGS LIST -->
+        <div class="songs-list" id="songsList"></div>
+
+        <!-- SHEET DISPLAY -->
+        <div id="sheetDisplay"></div>
+    </div>
+
+    <!-- CHORD POPUP -->
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+    <div class="chord-popup" id="chordPopup">
+        <div class="popup-header">
+            <div class="popup-title" id="popupTitle">Am</div>
+            <button class="popup-close" onclick="closePopup()">✕</button>
+        </div>
+        <div class="fretboard-container" id="fretboardContainer"></div>
+        <div class="popup-notes" id="popupNotes"></div>
+    </div>
+
+    <!-- FLOATING BUTTON -->
+    <button class="fab-clean" id="fabClean" onclick="toggleCleanMode()">🎸</button>
+
+    <!-- SCROLL INDICATOR -->
+    <div class="scroll-indicator" id="scrollIndicator">
+        <div class="scroll-progress" id="scrollProgress"></div>
+    </div>
+
+<script>
+// ==================== BASE DE DATOS DE ACORDES ====================
+const CHORDS_DB = {
+    guitar: {
+        'C': { fingers: [[1,0],[2,1],[3,0],[4,2],[5,3],[6,0]], notes: 'Do-Mi-Sol' },
+        'Cm': { fingers: [[1,3],[2,3],[3,3],[4,5],[5,5],[6,3]], notes: 'Do-Mib-Sol' },
+        'C7': { fingers: [[1,0],[2,1],[3,3],[4,2],[5,3],[6,0]], notes: 'Do-Mi-Sol-Sib' },
+        'Cmaj7': { fingers: [[1,0],[2,0],[3,0],[4,2],[5,3],[6,0]], notes: 'Do-Mi-Sol-Si' },
+        'D': { fingers: [[1,2],[2,3],[3,2],[4,0],[5,0],[6,0]], notes: 'Re-Fa#-La' },
+        'Dm': { fingers: [[1,1],[2,3],[3,2],[4,0],[5,0],[6,0]], notes: 'Re-Fa-La' },
+        'D7': { fingers: [[1,2],[2,1],[3,2],[4,0],[5,0],[6,0]], notes: 'Re-Fa#-La-Do' },
+        'E': { fingers: [[1,0],[2,0],[3,1],[4,2],[5,2],[6,0]], notes: 'Mi-Sol#-Si' },
+        'Em': { fingers: [[1,0],[2,0],[3,0],[4,2],[5,2],[6,0]], notes: 'Mi-Sol-Si' },
+        'E7': { fingers: [[1,0],[2,0],[3,1],[4,0],[5,2],[6,0]], notes: 'Mi-Sol#-Si-Re' },
+        'F': { fingers: [[1,1],[2,1],[3,2],[4,3],[5,3],[6,1]], notes: 'Fa-La-Do' },
+        'Fm': { fingers: [[1,1],[2,1],[3,1],[4,3],[5,3],[6,1]], notes: 'Fa-Lab-Do' },
+        'Fmaj7': { fingers: [[1,0],[2,1],[3,2],[4,3],[5,0],[6,0]], notes: 'Fa-La-Do-Mi' },
+        'G': { fingers: [[1,3],[2,0],[3,0],[4,0],[5,2],[6,3]], notes: 'Sol-Si-Re' },
+        'Gm': { fingers: [[1,3],[2,3],[3,3],[4,5],[5,5],[6,3]], notes: 'Sol-Sib-Re' },
+        'G7': { fingers: [[1,1],[2,0],[3,0],[4,0],[5,2],[6,3]], notes: 'Sol-Si-Re-Fa' },
+        'A': { fingers: [[1,0],[2,2],[3,2],[4,2],[5,0],[6,0]], notes: 'La-Do#-Mi' },
+        'Am': { fingers: [[1,0],[2,1],[3,2],[4,2],[5,0],[6,0]], notes: 'La-Do-Mi' },
+        'A7': { fingers: [[1,0],[2,2],[3,0],[4,2],[5,0],[6,0]], notes: 'La-Do#-Mi-Sol' },
+        'B': { fingers: [[1,2],[2,4],[3,4],[4,4],[5,2],[6,0]], notes: 'Si-Re#-Fa#' },
+        'Bm': { fingers: [[1,2],[2,3],[3,4],[4,4],[5,2],[6,0]], notes: 'Si-Re-Fa#' },
+        'B7': { fingers: [[1,2],[2,0],[3,2],[4,1],[5,2],[6,0]], notes: 'Si-Re#-Fa#-La' },
+    },
+    ukulele: {
+        'C': { fingers: [[1,0],[2,0],[3,0],[4,3]], notes: 'Do-Mi-Sol' },
+        'Cm': { fingers: [[1,3],[2,3],[3,3],[4,3]], notes: 'Do-Mib-Sol' },
+        'C7': { fingers: [[1,0],[2,0],[3,0],[4,1]], notes: 'Do-Mi-Sol-Sib' },
+        'Cmaj7': { fingers: [[1,0],[2,0],[3,0],[4,2]], notes: 'Do-Mi-Sol-Si' },
+        'D': { fingers: [[1,2],[2,2],[3,2],[4,0]], notes: 'Re-Fa#-La' },
+        'Dm': { fingers: [[1,2],[2,2],[3,1],[4,0]], notes: 'Re-Fa-La' },
+        'D7': { fingers: [[1,2],[2,2],[3,2],[4,3]], notes: 'Re-Fa#-La-Do' },
+        'E': { fingers: [[1,4],[2,4],[3,4],[4,2]], notes: 'Mi-Sol#-Si' },
+        'Em': { fingers: [[1,2],[2,3],[3,4],[4,0]], notes: 'Mi-Sol-Si' },
+        'E7': { fingers: [[1,2],[2,3],[3,2],[4,0]], notes: 'Mi-Sol#-Si-Re' },
+        'F': { fingers: [[1,2],[2,0],[3,1],[4,0]], notes: 'Fa-La-Do' },
+        'Fm': { fingers: [[1,1],[2,0],[3,1],[4,3]], notes: 'Fa-Lab-Do' },
+        'Fmaj7': { fingers: [[1,0],[2,0],[3,1],[4,3]], notes: 'Fa-La-Do-Mi' },
+        'G': { fingers: [[1,0],[2,0],[3,0],[4,2]], notes: 'Sol-Si-Re' },
+        'Gm': { fingers: [[1,0],[2,2],[3,3],[4,1]], notes: 'Sol-Sib-Re' },
+        'G7': { fingers: [[1,0],[2,0],[3,0],[4,1]], notes: 'Sol-Si-Re-Fa' },
+        'A': { fingers: [[1,2],[2,1],[3,0],[4,0]], notes: 'La-Do#-Mi' },
+        'Am': { fingers: [[1,2],[2,0],[3,0],[4,0]], notes: 'La-Do-Mi' },
+        'A7': { fingers: [[1,0],[2,1],[3,0],[4,0]], notes: 'La-Do#-Mi-Sol' },
+        'B': { fingers: [[1,4],[2,3],[3,2],[4,2]], notes: 'Si-Re#-Fa#' },
+        'Bm': { fingers: [[1,4],[2,2],[3,2],[4,2]], notes: 'Si-Re-Fa#' },
+        'B7': { fingers: [[1,2],[2,3],[3,2],[4,2]], notes: 'Si-Re#-Fa#-La' },
+    }
+};
+
+// Notas para transposición
+const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTES_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+// ==================== ESTADO GLOBAL ====================
+let currentInstrument = 'guitar';
+let currentTranspose = 0;
+let isAutoscrolling = false;
+let scrollInterval = null;
+let scrollSpeed = 30;
+let currentSong = null;
+let favorites = JSON.parse(localStorage.getItem('chordshift_favorites') || '[]');
+let songs = JSON.parse(localStorage.getItem('chordshift_songs') || '[]');
+
+// ==================== INICIALIZACIÓN ====================
+document.addEventListener('DOMContentLoaded', () => {
+    loadSongsList();
+    updateScrollIndicator();
+    window.addEventListener('scroll', updateScrollIndicator);
+
+    // Service Worker para PWA offline
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript,' + encodeURIComponent(`
+            self.addEventListener('install', e => self.skipWaiting());
+            self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+            self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
+        `)).catch(() => {});
+    }
+});
+
+// ==================== INSTRUMENTO ====================
+function setInstrument(inst) {
+    currentInstrument = inst;
+    document.querySelectorAll('.instrument-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.instrument === inst);
+    });
+    if (currentSong) {
+        displaySheet(currentSong);
+    }
+    saveCurrentState();
+}
+
+// ==================== PROCESAR PARTITURA ====================
+function processSheet() {
+    const text = document.getElementById('pasteArea').value.trim();
+    if (!text) {
+        alert('Pega una partitura primero');
+        return;
+    }
+
+    const lines = text.split('
+');
+    let title = 'Sin título';
+    let artist = '';
+
+    // Intentar detectar título/artista de las primeras líneas
+    if (lines[0] && !containsChord(lines[0])) {
+        title = lines[0].trim();
+        if (lines[1] && !containsChord(lines[1])) {
+            artist = lines[1].trim();
+        }
+    }
+
+    const song = {
+        id: Date.now(),
+        title: title,
+        artist: artist,
+        rawText: text,
+        transpose: 0,
+        instrument: currentInstrument,
+        date: new Date().toLocaleDateString()
+    };
+
+    songs.unshift(song);
+    localStorage.setItem('chordshift_songs', JSON.stringify(songs));
+
+    currentSong = song;
+    currentTranspose = 0;
+    document.getElementById('transposeDisplay').textContent = '0';
+
+    displaySheet(song);
+    loadSongsList();
+
+    // Ocultar input después de procesar
+    document.getElementById('inputSection').style.display = 'none';
+}
+
+function containsChord(line) {
+    const chordPattern = /[A-G](?:#|b)?(?:m|maj7|7|sus4|sus2|dim|aug|add9|m7|maj)?/;
+    return chordPattern.test(line);
+}
+
+// ==================== MOSTRAR PARTITURA ====================
+function displaySheet(song) {
+    const container = document.getElementById('sheetDisplay');
+    const lines = song.rawText.split('
+');
+
+    let html = `
+        <div class="sheet-container animate-in">
+            <div class="sheet-header">
+                <div>
+                    <div class="sheet-title">${escapeHtml(song.title)}</div>
+                    <div class="sheet-artist">${escapeHtml(song.artist)}</div>
+                </div>
+                <div class="sheet-meta">
+                    <span class="meta-tag instrument-${currentInstrument}">${currentInstrument === 'guitar' ? '🎸 Guitarra' : '🪕 Ukulele'}</span>
+                    ${currentTranspose !== 0 ? `<span class="meta-tag transpose">${currentTranspose > 0 ? '+' : ''}${currentTranspose}</span>` : ''}
+                </div>
+            </div>
+            <div class="sheet-content">
+    `;
+
+    lines.forEach(line => {
+        if (!line.trim()) {
+            html += '<div style="height: 0.8em;"></div>';
+            return;
+        }
+
+        // Detectar si la línea es de acordes o letra
+        const chordPositions = parseChordLine(line);
+
+        if (chordPositions.length > 0) {
+            // Línea con acordes
+            html += '<div class="lyric-line">';
+            let lastPos = 0;
+
+            chordPositions.forEach(({chord, pos}) => {
+                // Texto antes del acorde
+                const beforeText = line.slice(lastPos, pos);
+                if (beforeText) {
+                    html += `<span class="lyric-text">${escapeHtml(beforeText)}</span>`;
+                }
+
+                // Acorde transpuesto
+                const transposedChord = transposeChord(chord, currentTranspose);
+                html += `<span class="chord-inline" onclick="showChordDiagram('${transposedChord}')">${transposedChord}</span>`;
+
+                lastPos = pos + chord.length;
+            });
+
+            // Texto restante
+            const remaining = line.slice(lastPos);
+            if (remaining) {
+                html += `<span class="lyric-text">${escapeHtml(remaining)}</span>`;
+            }
+
+            html += '</div>';
+        } else {
+            // Línea pura de letra
+            html += `<div class="lyric-line"><span class="lyric-text">${escapeHtml(line)}</span></div>`;
+        }
+    });
+
+    html += '</div></div>';
+    container.innerHTML = html;
+
+    // Reset scroll
+    window.scrollTo(0, 0);
+    resetScroll();
+}
+
+function parseChordLine(line) {
+    const chords = [];
+    // Patrón de acorde: letra + opcional #/b + opcional sufijo
+    const pattern = /([A-G](?:#|b)?(?:m(?:aj7?|7?)?|7|sus[24]?|dim|aug|add9|maj7?)?)/g;
+    let match;
+
+    while ((match = pattern.exec(line)) !== null) {
+        chords.push({
+            chord: match[1],
+            pos: match.index
+        });
+    }
+
+    return chords;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ==================== TRANSPOSICIÓN ====================
+function transpose(semitones) {
+    currentTranspose += semitones;
+    document.getElementById('transposeDisplay').textContent = 
+        (currentTranspose > 0 ? '+' : '') + currentTranspose;
+
+    if (currentSong) {
+        displaySheet(currentSong);
+    }
+}
+
+function transposeChord(chord, semitones) {
+    if (semitones === 0) return chord;
+
+    // Extraer nota base y sufijo
+    const match = chord.match(/^([A-G])(#|b)?(.*)$/);
+    if (!match) return chord;
+
+    let [, note, accidental, suffix] = match;
+
+    // Normalizar a índice
+    let noteIndex = NOTES.indexOf(note);
+    if (accidental === 'b') {
+        noteIndex = NOTES_FLAT.indexOf(note + 'b');
+    } else if (accidental === '#') {
+        noteIndex = NOTES.indexOf(note + '#');
+    }
+
+    // Transponer
+    let newIndex = (noteIndex + semitones) % 12;
+    if (newIndex < 0) newIndex += 12;
+
+    return NOTES[newIndex] + suffix;
+}
+
+// ==================== DIAGRAMAS DE ACORDES ====================
+function showChordDiagram(chordName) {
+    const db = CHORDS_DB[currentInstrument];
+    const chordData = db[chordName] || db[chordName.replace('b', '#')] || generateGenericChord(chordName);
+
+    document.getElementById('popupTitle').textContent = chordName;
+    document.getElementById('popupNotes').textContent = chordData.notes || 'Acorde ' + chordName;
+
+    const svg = generateFretboardSVG(chordData.fingers, currentInstrument);
+    document.getElementById('fretboardContainer').innerHTML = svg;
+
+    document.getElementById('popupOverlay').classList.add('active');
+    document.getElementById('chordPopup').classList.add('active');
+}
+
+function generateGenericChord(name) {
+    // Acorde genérico si no está en la base de datos
+    return {
+        fingers: currentInstrument === 'guitar' 
+            ? [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]]
+            : [[1,0],[2,0],[3,0],[4,0]],
+        notes: 'Acorde ' + name
+    };
+}
+
+function generateFretboardSVG(fingers, instrument) {
+    const isGuitar = instrument === 'guitar';
+    const strings = isGuitar ? 6 : 4;
+    const width = 200;
+    const height = 220;
+    const margin = 20;
+    const fretSpacing = 35;
+    const stringSpacing = isGuitar ? 28 : 42;
+    const startX = (width - (strings - 1) * stringSpacing) / 2;
+
+    let svg = `<svg class="fretboard-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`;
+
+    // Fondo
+    svg += `<rect x="${margin}" y="${margin}" width="${width - 2*margin}" height="${height - 2*margin}" rx="8" fill="#252540"/>`;
+
+    // Cejilla (nut) o traste 0
+    svg += `<rect x="${startX - 5}" y="${margin + 10}" width="${(strings-1)*stringSpacing + 10}" height="4" rx="2" fill="#f5e6d3"/>`;
+
+    // Trastes
+    for (let i = 1; i <= 5; i++) {
+        const y = margin + 10 + i * fretSpacing;
+        svg += `<line x1="${startX - 5}" y1="${y}" x2="${startX + (strings-1)*stringSpacing + 5}" y2="${y}" stroke="#d4a574" stroke-width="1.5"/>`;
+        // Número de traste
+        svg += `<text x="${margin - 8}" y="${y - fretSpacing/2}" fill="#a0a0a0" font-size="10" text-anchor="end">${i}</text>`;
+    }
+
+    // Cuerdas
+    for (let s = 0; s < strings; s++) {
+        const x = startX + s * stringSpacing;
+        svg += `<line x1="${x}" y1="${margin + 10}" x2="${x}" y2="${margin + 10 + 5*fretSpacing}" stroke="#c0c0c0" stroke-width="${isGuitar ? (s < 2 ? 1.5 : 1) : 1.5}"/>`;
+
+        // Nota de afinación al final
+        const tuning = isGuitar ? ['E','B','G','D','A','E'] : ['A','E','C','G'];
+        svg += `<text x="${x}" y="${height - 5}" fill="#a0a0a0" font-size="9" text-anchor="middle">${tuning[s]}</text>`;
+    }
+
+    // Dedos
+    fingers.forEach(([string, fret]) => {
+        if (fret === 0) {
+            // Cuerda al aire - círculo abierto
+            const x = startX + (string - 1) * stringSpacing;
+            const y = margin + 5;
+            svg += `<circle cx="${x}" cy="${y}" r="5" fill="none" stroke="#4ecca3" stroke-width="2"/>`;
+        } else if (fret > 0) {
+            // Dedo en traste
+            const x = startX + (string - 1) * stringSpacing;
+            const y = margin + 10 + (fret - 0.5) * fretSpacing;
+            svg += `<circle cx="${x}" cy="${y}" r="10" fill="#e94560"/>`;
+            svg += `<text x="${x}" y="${y + 4}" fill="white" font-size="11" font-weight="bold" text-anchor="middle">${fret}</text>`;
+        }
+    });
+
+    svg += '</svg>';
+    return svg;
+}
+
+function closePopup() {
+    document.getElementById('popupOverlay').classList.remove('active');
+    document.getElementById('chordPopup').classList.remove('active');
+}
+
+// ==================== AUTO-SCROLL ====================
+function toggleAutoscroll() {
+    const btn = document.getElementById('playBtn');
+
+    if (isAutoscrolling) {
+        stopAutoscroll();
+        btn.textContent = '▶';
+        btn.classList.remove('active');
+    } else {
+        startAutoscroll();
+        btn.textContent = '⏸';
+        btn.classList.add('active');
+    }
+}
+
+function startAutoscroll() {
+    isAutoscrolling = true;
+    const speed = 101 - scrollSpeed; // Invertir: 100 = lento, 1 = rápido
+    const pixelsPerFrame = Math.max(0.3, speed / 20);
+
+    scrollInterval = setInterval(() => {
+        window.scrollBy(0, pixelsPerFrame);
+
+        // Detener si llegó al final
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10) {
+            stopAutoscroll();
+            document.getElementById('playBtn').textContent = '▶';
+            document.getElementById('playBtn').classList.remove('active');
+        }
+    }, 16); // ~60fps
+}
+
+function stopAutoscroll() {
+    isAutoscrolling = false;
+    if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+    }
+}
+
+function resetScroll() {
+    stopAutoscroll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('playBtn').textContent = '▶';
+    document.getElementById('playBtn').classList.remove('active');
+}
+
+function updateSpeed(value) {
+    scrollSpeed = parseInt(value);
+    document.getElementById('speedValue').textContent = value + '%';
+
+    // Si está autoscrolleando, reiniciar con nueva velocidad
+    if (isAutoscrolling) {
+        stopAutoscroll();
+        startAutoscroll();
+    }
+}
+
+// ==================== MODO LIMPIO ====================
+function toggleCleanMode() {
+    document.body.classList.toggle('clean-mode');
+    const fab = document.getElementById('fabClean');
+    fab.classList.toggle('hidden');
+}
+
+// ==================== FAVORITOS ====================
+function showFavorites() {
+    const favs = songs.filter(s => favorites.includes(s.id));
+    if (favs.length === 0) {
+        alert('No tienes favoritos guardados. Toca ⭐ en una canción.');
+        return;
+    }
+
+    // Mostrar solo favoritos
+    const container = document.getElementById('songsList');
+    container.innerHTML = '<div style="color: var(--text-muted); margin-bottom: 12px;">⭐ Tus favoritos</div>';
+
+    favs.forEach(song => {
+        const div = document.createElement('div');
+        div.className = 'song-card';
+        div.innerHTML = `
+            <div class="song-info">
+                <h3>${escapeHtml(song.title)}</h3>
+                <p>${escapeHtml(song.artist || 'Sin artista')} • ${song.date}</p>
+            </div>
+            <div class="song-actions">
+                <button onclick="loadSong(${song.id}); event.stopPropagation();">📖</button>
+                <button onclick="toggleFavorite(${song.id}); event.stopPropagation();" style="color: #ffc107;">⭐</button>
+                <button onclick="deleteSong(${song.id}); event.stopPropagation();">🗑</button>
+            </div>
+        `;
+        div.onclick = () => loadSong(song.id);
+        container.appendChild(div);
+    });
+
+    document.getElementById('sheetDisplay').innerHTML = '';
+    document.getElementById('inputSection').style.display = 'none';
+}
+
+function toggleFavorite(songId) {
+    const idx = favorites.indexOf(songId);
+    if (idx > -1) {
+        favorites.splice(idx, 1);
+    } else {
+        favorites.push(songId);
+    }
+    localStorage.setItem('chordshift_favorites', JSON.stringify(favorites));
+    loadSongsList();
+}
+
+// ==================== LISTA DE CANCIONES ====================
+function loadSongsList() {
+    const container = document.getElementById('songsList');
+
+    if (songs.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 18V5l12-2v13M9 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm12-3c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zM9 10l12-2"/>
+                </svg>
+                <h3>No hay canciones aún</h3>
+                <p>Pega una partitura de lacuerda.net arriba para empezar</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = '<div style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.85rem;">📚 Tus canciones</div>';
+
+    songs.forEach(song => {
+        const isFav = favorites.includes(song.id);
+        const div = document.createElement('div');
+        div.className = 'song-card';
+        div.innerHTML = `
+            <div class="song-info">
+                <h3>${escapeHtml(song.title)}</h3>
+                <p>${escapeHtml(song.artist || 'Sin artista')} • ${song.date}</p>
+            </div>
+            <div class="song-actions">
+                <button onclick="loadSong(${song.id}); event.stopPropagation();">📖</button>
+                <button onclick="toggleFavorite(${song.id}); event.stopPropagation();" style="color: ${isFav ? '#ffc107' : 'var(--text-muted)'};">${isFav ? '⭐' : '☆'}</button>
+                <button onclick="deleteSong(${song.id}); event.stopPropagation();">🗑</button>
+            </div>
+        `;
+        div.onclick = () => loadSong(song.id);
+        container.appendChild(div);
+    });
+}
+
+function loadSong(id) {
+    const song = songs.find(s => s.id === id);
+    if (song) {
+        currentSong = song;
+        currentTranspose = song.transpose || 0;
+        currentInstrument = song.instrument || 'guitar';
+
+        document.getElementById('transposeDisplay').textContent = 
+            (currentTranspose > 0 ? '+' : '') + currentTranspose;
+
+        // Actualizar toggle visual
+        document.querySelectorAll('.instrument-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.instrument === currentInstrument);
+        });
+
+        displaySheet(song);
+        document.getElementById('inputSection').style.display = 'none';
+        window.scrollTo(0, 0);
+    }
+}
+
+function deleteSong(id) {
+    if (!confirm('¿Eliminar esta canción?')) return;
+    songs = songs.filter(s => s.id !== id);
+    favorites = favorites.filter(f => f !== id);
+    localStorage.setItem('chordshift_songs', JSON.stringify(songs));
+    localStorage.setItem('chordshift_favorites', JSON.stringify(favorites));
+    loadSongsList();
+
+    if (currentSong && currentSong.id === id) {
+        document.getElementById('sheetDisplay').innerHTML = '';
+        currentSong = null;
+    }
+}
+
+// ==================== SCROLL INDICATOR ====================
+function updateScrollIndicator() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    document.getElementById('scrollProgress').style.height = progress + '%';
+}
+
+// ==================== UTILIDADES ====================
+function saveCurrentState() {
+    if (currentSong) {
+        currentSong.instrument = currentInstrument;
+        currentSong.transpose = currentTranspose;
+        const idx = songs.findIndex(s => s.id === currentSong.id);
+        if (idx > -1) {
+            songs[idx] = currentSong;
+            localStorage.setItem('chordshift_songs', JSON.stringify(songs));
+        }
+    }
+}
+
+// Cerrar popup con Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePopup();
+    if (e.key === ' ') {
+        e.preventDefault();
+        toggleAutoscroll();
+    }
+});
+
+// Pausar autoscroll al tocar la pantalla (opcional)
+let touchStartY = 0;
+document.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchmove', (e) => {
+    if (isAutoscrolling && Math.abs(e.touches[0].clientY - touchStartY) > 30) {
+        stopAutoscroll();
+        document.getElementById('playBtn').textContent = '▶';
+        document.getElementById('playBtn').classList.remove('active');
+    }
+});
+</script>
+</body>
+</html>
